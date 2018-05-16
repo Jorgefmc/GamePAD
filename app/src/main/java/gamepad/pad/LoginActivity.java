@@ -96,6 +96,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        //TODO: Remove this skip
+        startActivity(new Intent(LoginActivity.this, MainActivity.class));
     }
 
     private void populateAutoComplete() {
@@ -340,9 +343,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
 
             } else {
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                //mPasswordView.setError(getString(R.string.error_incorrect_password));
-                //mPasswordView.requestFocus();
+                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.requestFocus();
             }
         }
 

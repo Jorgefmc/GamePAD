@@ -15,6 +15,10 @@
         completions."
     </string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="tab1">Ofertas</string>
+    <string name="tab2">Alquilar</string>
+    <string name="tab3">Activos</string>
+    <string name="tab4">Opciones</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 
