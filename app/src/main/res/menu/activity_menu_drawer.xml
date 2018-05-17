@@ -6,30 +6,30 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/menu_offersItem"
-            android:title="Ofertas" />
+            android:title="@string/item_offers" />
         <item
             android:id="@+id/menu_activeItem"
-            android:title="Activos" />
+            android:title="@string/item_actives" />
         <item
             android:id="@+id/menu_rentItem"
-            android:title="Alquilar" />
+            android:title="@string/item_rent" />
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/item_separator">
         <menu>
             <item
                 android:id="@+id/menu_accountItem"
-                android:title="Cuenta" />
+                android:title="@string/item_account" />
             <item
                 android:id="@+id/menu_historyItem"
-                android:title="Historial" />
+                android:title="@string/item_history" />
             <item
                 android:id="@+id/menu_settingsItem"
                 android:icon="@drawable/ic_menu_manage"
-                android:title="Opciones" />
+                android:title="@string/item_settings" />
             <item
                 android:id="@+id/menu_exitItem"
-                android:title="Cerrar Sesión" />
+                android:title="@string/item_exit" />
         </menu>
     </item>
 

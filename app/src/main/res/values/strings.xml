@@ -15,10 +15,14 @@
         completions."
     </string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="tab_title_1">Ofertas</string>
-    <string name="tab_title_2">Prestar</string>
-    <string name="tab_title_3">Perfil</string>
-    <string name="tab_title_4">Opciones</string>
+    <string name="item_offers">Ofertas</string>
+    <string name="item_actives">Activos</string>
+    <string name="item_rent">Alquilar</string>
+    <string name="item_separator">Mi GamePAD</string>
+    <string name="item_account">Cuenta</string>
+    <string name="item_history">Historial</string>
+    <string name="item_settings">Opciones</string>
+    <string name="item_exit">Cerrar Sesión</string>
 
     <string name="action_settings">Settings</string>
 
@@ -31,4 +35,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_rent">Alquilar</string>
+    <string name="title_activity_test">TestActivity</string>
+
 </resources>

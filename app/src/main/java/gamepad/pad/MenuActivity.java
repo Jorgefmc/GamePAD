@@ -99,7 +99,9 @@ public class MenuActivity extends AppCompatActivity
         } else if (id == R.id.menu_settingsItem) {
 
         } else if (id == R.id.menu_exitItem) {
-            startActivity(new Intent(MenuActivity.this, LoginActivity.class));
+            Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -111,4 +113,6 @@ public class MenuActivity extends AppCompatActivity
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+
 }
