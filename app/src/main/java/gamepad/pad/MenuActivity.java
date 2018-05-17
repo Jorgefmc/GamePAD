@@ -2,6 +2,7 @@ package gamepad.pad;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -89,15 +90,17 @@ public class MenuActivity extends AppCompatActivity
         } else if (id == R.id.menu_activeItem) {
             getSupportActionBar().setTitle("Activos");
             fm.beginTransaction().replace(R.id.menu_contentFrame, ActivesFragment.newInstance()).commit();
-        } /*else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.menu_rentItem) {
+            startActivity(new Intent(MenuActivity.this, RentActivity.class));
+        } else if (id == R.id.menu_accountItem) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.menu_historyItem) {
 
-        } else if (id == R.id.nav_share) {
+        } else if (id == R.id.menu_settingsItem) {
 
-        } else if (id == R.id.nav_send) {
-
-        }*/
+        } else if (id == R.id.menu_exitItem) {
+            startActivity(new Intent(MenuActivity.this, LoginActivity.class));
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

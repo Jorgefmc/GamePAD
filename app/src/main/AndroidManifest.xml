@@ -26,7 +26,16 @@
         <activity
             android:name=".MenuActivity"
             android:label="@string/title_activity_menu"
-            android:theme="@style/AppTheme"></activity>
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".RentActivity"
+            android:label="@string/title_activity_rent"
+            android:parentActivityName=".MenuActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="gamepad.pad.MenuActivity" />
+        </activity>
     </application>
 
 </manifest>
