@@ -1,9 +1,9 @@
 package gamepad.pad;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.LayoutManager;
@@ -14,14 +14,13 @@ import android.widget.TextView;
 
 
 public class OffersFragment extends Fragment {
-
-    // TODO: Rename and change types of parameters
-    private String [] _gameList = {"God of War", "Nier: Automata", "Transistor", "Journey", "Pyre", "Hellblade"
-            , "Test1", "Test2", "Test3", "Test4", "Test5", "Test6", "Test7", "Test8"};
+    private String [] _gameList = {"God of War", "Nier: Automata", "Transistor", "Journey", "Pyre",
+            "Hellblade: Senua's Sacrifice", "The Witcher 3", "Monster Hunter: World", "Bloodborne",
+            "Celeste", "Wolfenstein II: The New Colossus", "Resident Evil VII", "Dishonored 2", "Dark Souls 3"};
 
     private RecyclerView _recyclerView;
     private LayoutManager _layoutManager;
-    private ItemListAdapter _adapter;
+    private OffersItemListAdapter _adapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -50,13 +49,13 @@ public class OffersFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_offers, container, false);
 
-        _recyclerView = (RecyclerView) v.findViewById(R.id.itemsList);
+        _recyclerView = (RecyclerView) v.findViewById(R.id.offers_itemsList);
         _recyclerView.setHasFixedSize(true);
 
-        _layoutManager = new LinearLayoutManager(this.getContext());
+        _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new ItemListAdapter (_gameList, this.getContext());
+        _adapter = new OffersItemListAdapter(_gameList, v.getContext());
         _recyclerView.setAdapter(_adapter);
 
         return v;
@@ -103,15 +102,15 @@ public class OffersFragment extends Fragment {
 
 }
 
-class ItemListAdapter extends  RecyclerView.Adapter<ItemListAdapter.ViewHolder> {
+class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.OffersViewHolder> {
     private String [] _itemList;
     private Context _context;
 
-    public static  class ViewHolder extends RecyclerView.ViewHolder {
+    public static  class OffersViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
         public TextView _body;
 
-        public ViewHolder (View v) {
+        public OffersViewHolder(View v) {
             super(v);
             _head = (TextView)v.findViewById(R.id.list_item_Head);
             _body = (TextView)v.findViewById(R.id.list_item_Body);
@@ -119,26 +118,25 @@ class ItemListAdapter extends  RecyclerView.Adapter<ItemListAdapter.ViewHolder> 
 
     }
 
-    public ItemListAdapter (String [] itemList, Context context) {
+    public OffersItemListAdapter(String [] itemList, Context context) {
         _itemList = itemList;
         _context = context;
 
     }
 
     @Override
-    public ItemListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public OffersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
 
 
-        return new ViewHolder(v);
+        return new OffersViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(ItemListAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(OffersViewHolder holder, int position) {
         holder._head.setText(_itemList[position]);
+        holder._body.setText("");
     }
-
-    @Override
     public int getItemCount() {
         return _itemList.length;
     }

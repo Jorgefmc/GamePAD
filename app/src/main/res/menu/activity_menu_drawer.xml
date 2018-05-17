@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_offersItem"
+            android:title="Ofertas" />
+        <item
+            android:id="@+id/menu_activeItem"
+            android:title="Activos" />
+        <item
+            android:id="@+id/menu_rentItem"
+            android:title="Alquilar" />
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <item
+                android:id="@+id/menu_accountItem"
+                android:title="Cuenta" />
+            <item
+                android:id="@+id/menu_historyItem"
+                android:title="Historial" />
+            <item
+                android:id="@+id/menu_settingsItem"
+                android:icon="@drawable/ic_menu_manage"
+                android:title="Opciones" />
+            <item
+                android:id="@+id/menu_exitItem"
+                android:title="Cerrar Sesión" />
+        </menu>
+    </item>
+
+</menu>

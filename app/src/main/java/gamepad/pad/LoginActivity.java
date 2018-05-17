@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
 
         //TODO: Remove this skip
-        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+        //startActivity(new Intent(LoginActivity.this, MenuActivity.class));
     }
 
     private void populateAutoComplete() {
@@ -330,7 +330,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
 
             // TODO: register the new account here.
-            return true;
+            return false;
         }
 
         @Override
@@ -340,10 +340,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             if (success) {
                 //TODO: Switch activity here
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                startActivity(new Intent(LoginActivity.this, MenuActivity.class));
 
             } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                mPasswordView.setError(getString(R.string.error_incorrect_login));
                 mPasswordView.requestFocus();
             }
         }
