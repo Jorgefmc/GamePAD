@@ -1,0 +1,20 @@
+body{
+
+  background-color: whitesmoke;
+  font-family: "serif";
+  
+
+}
+
+.panel-heading{
+
+  font-size: 75px;
+
+}
+
+.panel-body{
+
+  background-color: whitesmoke;
+  font-size: 30px;
+
+}
