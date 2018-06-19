@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -41,7 +42,6 @@ public class MenuActivity extends AppCompatActivity
         fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance()).commit();
         getSupportActionBar().setTitle("Ofertas");
 
-
     }
 
     @Override
@@ -58,6 +58,13 @@ public class MenuActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
+        Intent intent = getIntent();
+
+        TextView uname = findViewById(R.id.sidebar_name);
+        uname.setText(intent.getStringExtra("uname"));
+
+        TextView email = findViewById(R.id.sidebar_email);
+        email.setText(intent.getStringExtra("email"));
         return true;
     }
 

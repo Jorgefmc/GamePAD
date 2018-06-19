@@ -8,6 +8,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 public class RentActivity extends AppCompatActivity {
 
@@ -22,20 +23,27 @@ public class RentActivity extends AppCompatActivity {
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Poner en Alquiler");
 
         //TODO: PARA VOLVER A LA ACTIVIDAD ANTERIOR UTILIZA EL SIGUIENTE CODIGO!!!!;
         Button save = (Button) findViewById(R.id.save_game);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent returnIntent = new Intent();
-                setResult(Activity.RESULT_CANCELED, returnIntent);
-                finish();
+                onRentClicked();
             }
         });
         /*Intent returnIntent = new Intent();
         setResult(Activity.RESULT_CANCELED, returnIntent);
         finish();*/
+    }
+
+    private void onRentClicked () {
+        TextView name = findViewById(R.id.rent_game_name);
+        if (name.length() == 0)
+            return;
+
+
     }
 
 

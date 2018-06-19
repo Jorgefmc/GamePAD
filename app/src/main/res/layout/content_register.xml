@@ -22,10 +22,11 @@
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/rent_game_name"
+                android:id="@+id/register_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Nombre del juego" />
+                android:hint="Correo electronico"
+                android:inputType="textEmailAddress" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -34,10 +35,11 @@
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/rent_game_genre"
+                android:id="@+id/register_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Genero"
+                android:hint="Nombre de usuario"
+                android:inputType="text"
                 android:singleLine="false" />
         </android.support.design.widget.TextInputLayout>
 
@@ -46,11 +48,24 @@
             android:layout_height="wrap_content">
 
             <android.support.design.widget.TextInputEditText
-                android:id="@+id/rent_price_day"
+                android:id="@+id/register_pw"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Precio por día"
-                android:inputType="number|numberDecimal" />
+                android:hint="Constraseña"
+                android:inputType="textPassword" />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/register_rpt_pw"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Repetir constraseña"
+                android:inputType="textPassword" />
 
         </android.support.design.widget.TextInputLayout>
 
@@ -63,10 +78,10 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/save_game"
+            android:id="@+id/register_register"
             android:layout_width="194dp"
             android:layout_height="wrap_content"
-            android:text="Guardar" />
+            android:text="Registrarse" />
     </LinearLayout>
 
 </LinearLayout>

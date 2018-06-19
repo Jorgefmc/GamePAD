@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class ActivesFragment extends Fragment {
 
     private String [] _activesList = {"Nier: Automata", "The Witcher 3"};
-    private Date [] _datesList = {Date.valueOf("2018-05-19"), Date.valueOf("2018-06-28")};
+    private Date [] _datesList = {Date.valueOf("2018-06-19"), Date.valueOf("2018-06-28")};
 
 
     private RecyclerView _recyclerView;
