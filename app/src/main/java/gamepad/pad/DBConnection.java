@@ -15,6 +15,7 @@ public class DBConnection extends SQLiteOpenHelper{
     private static final int _DATABASE_VERSION = 1;
     private static final String _DATABASE_NAME = "pad_db";
     private static DBConnection instance= null;
+    public static final long DEFAULT_USER = 0;
 
     //Thread safe singleton
     public static DBConnection db (Context context) {
@@ -28,7 +29,6 @@ public class DBConnection extends SQLiteOpenHelper{
     }
 
 
-
     private DBConnection(Context context) {
         super(context, _DATABASE_NAME, null, _DATABASE_VERSION);
     }
@@ -37,6 +37,7 @@ public class DBConnection extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         createAll(db);
+        addDefault(db);
     }
 
     @Override
@@ -46,53 +47,11 @@ public class DBConnection extends SQLiteOpenHelper{
         onCreate (db);
     }
 
-    public long createUser (String email, String name, String pw) throws LoginException {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        String [] args = {email, name};
-
-        //Error si email o username ya existe
-        Cursor cursor = db.query("Users", new String[]{"id"},
-                "email=? OR username=?", args,
-                null, null, null);
-
-        if (cursor.moveToFirst()) {
-            boolean qemail = false;
-            boolean qname = false;
-            do {
-                qemail = email.equals(cursor.getString(cursor.getColumnIndex("email")));
-                qname = name.equals(cursor.getString(cursor.getColumnIndex("username")));
-            }while(cursor.moveToNext() && !qemail && !qname);
-            cursor.close();
-            db.close();
-            if (qemail) {
-                LoginException e = new LoginException("Email is already in use", LoginException.USED_EMAIL);
-                throw e;
-            }
-            else {
-                LoginException e = new LoginException("Username is already in use.", LoginException.USED_NAME);
-                throw e;
-            }
-        }
-        cursor.close();
-
-
-        ContentValues values = new ContentValues();
-        values.put ("email", email);
-        values.put ("username", name);
-        values.put ("pw", pw);
-
-        long id = db.insert("Users", null, values);
-
-        db.close();
-
-        return id;
-    }
-
     public void resetDB () {
         SQLiteDatabase db = this.getWritableDatabase();
         killAll(db);
         createAll(db);
+        addDefault(db);
     }
 
     private void killAll (SQLiteDatabase db) {
@@ -142,6 +101,70 @@ public class DBConnection extends SQLiteOpenHelper{
                 "end_date DATETIME, " +
                 "price_total REAL, " +
                 "PRIMARY KEY (giver_id, receiver_id, game_id, start_date));");
+
+    }
+
+    private void addDefault (SQLiteDatabase db) {
+        Cursor cursor = db.query("Users", new String[]{"id"},
+                "id=?", new String[]{"" + DEFAULT_USER},
+                null, null, null);
+
+        ContentValues values = new ContentValues();
+        values.put("id", DEFAULT_USER);
+        values.put ("email", "user@test.com");
+        values.put ("username", "User");
+        values.put ("pw", "12345");
+
+        if (cursor.moveToFirst())
+            db.update("Users", values, "id=?", new String[]{"" + DEFAULT_USER});
+        else
+            db.insert("Users", null, values);
+
+        cursor.close();
+        db.close();
+    }
+
+    public long createUser (String email, String name, String pw) throws LoginException {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String [] args = {email, name};
+
+        //Error si email o username ya existe
+        Cursor cursor = db.query("Users", new String[]{"id"},
+                "email=? OR username=?", args,
+                null, null, null);
+
+        if (cursor.moveToFirst()) {
+            boolean qemail = false;
+            boolean qname = false;
+            do {
+                qemail = email.equals(cursor.getString(cursor.getColumnIndex("email")));
+                qname = name.equals(cursor.getString(cursor.getColumnIndex("username")));
+            }while(cursor.moveToNext() && !qemail && !qname);
+            cursor.close();
+            db.close();
+            if (qemail) {
+                LoginException e = new LoginException("Email is already in use", LoginException.USED_EMAIL);
+                throw e;
+            }
+            else {
+                LoginException e = new LoginException("Username is already in use.", LoginException.USED_NAME);
+                throw e;
+            }
+        }
+        cursor.close();
+
+
+        ContentValues values = new ContentValues();
+        values.put ("email", email);
+        values.put ("username", name);
+        values.put ("pw", pw);
+
+        long id = db.insert("Users", null, values);
+
+        db.close();
+
+        return id;
     }
 
     public long loginUser (String email, String pw) throws LoginException {
@@ -178,6 +201,24 @@ public class DBConnection extends SQLiteOpenHelper{
 
         if (cursor.moveToFirst() && cursor.getCount() == 1) {
             res = cursor.getString(cursor.getColumnIndex("username"));
+        }
+
+        cursor.close();
+        db.close();
+        return res;
+    }
+
+    public String getUserEmail (long user_id) {
+        String res = null;
+        SQLiteDatabase db = this.getWritableDatabase();
+
+
+        Cursor cursor = db.query("Users", new String[]{"email"},
+                "id=? ", new String[] {"" + user_id},
+                null, null, null);
+
+        if (cursor.moveToFirst() && cursor.getCount() == 1) {
+            res = cursor.getString(cursor.getColumnIndex("email"));
         }
 
         cursor.close();

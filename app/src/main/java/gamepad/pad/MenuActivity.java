@@ -2,7 +2,9 @@ package gamepad.pad;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OffersFragment.OnFragmentInteractionListener, ActivesFragment.OnFragmentInteractionListener{
+
+    private long _userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,12 +63,15 @@ public class MenuActivity extends AppCompatActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
         Intent intent = getIntent();
+        _userID = intent.getLongExtra("id", -1);
 
-        TextView uname = findViewById(R.id.sidebar_name);
-        uname.setText(intent.getStringExtra("uname"));
+        String name = DBConnection.db(getApplicationContext()).getUserName(_userID);
+        TextView vuname = findViewById(R.id.sidebar_name);
+        vuname.setText(name);
 
-        TextView email = findViewById(R.id.sidebar_email);
-        email.setText(intent.getStringExtra("email"));
+        String email = DBConnection.db(getApplicationContext()).getUserEmail(_userID);
+        TextView vemail = findViewById(R.id.sidebar_email);
+        vemail.setText(email);
         return true;
     }
 
@@ -106,6 +113,11 @@ public class MenuActivity extends AppCompatActivity
         } else if (id == R.id.menu_settingsItem) {
 
         } else if (id == R.id.menu_exitItem) {
+            SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = loginToken.edit();
+            editor.remove("login");
+            editor.commit();
+
             Intent intent = new Intent(MenuActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

@@ -3,7 +3,9 @@ package gamepad.pad;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -64,6 +66,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
+        if (loginToken.contains("login")) {
+            long user_id = loginToken.getLong("login", -1);
+            Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
+            intent.putExtra("id", user_id);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            return;
+        }
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
@@ -105,9 +116,15 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         skip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                long user_id = DBConnection.db(getApplicationContext()).DEFAULT_USER;
+
+                SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = loginToken.edit();
+                editor.putLong("login", user_id);
+                editor.commit();
+
                 Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                intent.putExtra("uname", "User");
-                intent.putExtra("email", "user@test.com");
+                intent.putExtra("id", user_id);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }
@@ -216,6 +233,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
@@ -386,11 +409,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                String uname = DBConnection.db(getApplicationContext()).getUserName(user_id);
+                SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = loginToken.edit();
+                editor.putLong("login", user_id);
+                editor.commit();
+
                 Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
                 intent.putExtra("id", user_id);
-                intent.putExtra("uname", uname);
-                intent.putExtra("email", mEmail);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
 
