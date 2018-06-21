@@ -2,36 +2,47 @@ package gamepad.pad;
 
 import android.app.Fragment;
 import android.content.Context;
-import android.location.Location;
-import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 
-public class OffersFragment extends Fragment {
+
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link ActiveOffersFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link ActiveOffersFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class ActiveOffersFragment extends Fragment {
 
     private RecyclerView _recyclerView;
-    private LayoutManager _layoutManager;
-    private OffersItemListAdapter _adapter;
+    private RecyclerView.LayoutManager _layoutManager;
+    private ActivesItemListAdapter _adapter;
     private long _userID;
-    private OnFragmentInteractionListener mListener;
 
-    public OffersFragment() {
+    private ActiveOffersFragment.OnFragmentInteractionListener mListener;
+
+    public ActiveOffersFragment() {
     }
 
-    public static OffersFragment newInstance(long userId) {
-        OffersFragment fragment = new OffersFragment();
-        Bundle args = new Bundle();
-        args.putLong("id", userId);
-        fragment.setArguments(args);
+    public void setUser(long userID) {
+        _userID = userID;
+    }
 
+    public static ActiveOffersFragment newInstance(long userId) {
+        ActiveOffersFragment fragment = new ActiveOffersFragment();
+        fragment.setUser (userId);
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
         return fragment;
     }
 
@@ -47,17 +58,15 @@ public class OffersFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_offers, container, false);
+        View v = inflater.inflate(R.layout.fragment_active_offers, container, false);
 
-
-        _recyclerView = (RecyclerView) v.findViewById(R.id.offers_itemsList);
+        _recyclerView = (RecyclerView) v.findViewById(R.id.actives_itemList);
         _recyclerView.setHasFixedSize(true);
 
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _userID = getArguments().getLong("id");
-        _adapter = new OffersItemListAdapter(v.getContext(), _userID);
+        _adapter = new ActivesItemListAdapter(v.getContext(), _userID);
         _recyclerView.setAdapter(_adapter);
 
         return v;
@@ -79,8 +88,8 @@ public class OffersFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof ActiveOffersFragment.OnFragmentInteractionListener) {
+            mListener = (ActiveOffersFragment.OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -110,17 +119,18 @@ public class OffersFragment extends Fragment {
 
 }
 
-class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.OffersViewHolder> {
+
+class ActivesItemListAdapter extends  RecyclerView.Adapter<ActivesItemListAdapter.ActivesViewHolder> {
     private Context _context;
+    private SimpleDateFormat _dateFormat;
+    private GameListing [] _itemList;
     private long _userID;
-    private GameListing [] _gameList;
 
-
-    public static  class OffersViewHolder extends RecyclerView.ViewHolder {
+    public static  class ActivesViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
         public TextView _body;
 
-        public OffersViewHolder(View v) {
+        public ActivesViewHolder (View v) {
             super(v);
             _head = (TextView)v.findViewById(R.id.list_item_Head);
             _body = (TextView)v.findViewById(R.id.list_item_Body);
@@ -128,35 +138,39 @@ class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.
 
     }
 
-    public OffersItemListAdapter(Context context, long userID) {
-        _context = context;
+    public ActivesItemListAdapter(Context context, long userID) {
         _userID = userID;
+        _context = context;
+
+
     }
 
-    public void update() {
-        _gameList = DBConnection.db(_context).getExclusiveGameListings(_userID);
+    public  void update () {
+        _itemList = DBConnection.db(_context).getGameListingsFromUser(_userID);
     }
 
     @Override
-    public OffersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ActivesItemListAdapter.ActivesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
 
-
-        return new OffersViewHolder(v);
+        return new ActivesViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(OffersViewHolder holder, int position) {
-        if (getItemCount() > 0) {
-            holder._head.setText(_gameList[position].getName());
-            holder._body.setText(_gameList[position].getPrice() + "€ por día");
-        }
+    public void onBindViewHolder(ActivesItemListAdapter.ActivesViewHolder holder, int position) {
+
+        holder._head.setText(_itemList[position].getName());
+        /*long diff = _dateList[position].getTime() - System.currentTimeMillis();
+        long daysLeft = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);*/
+        holder._body.setText(_itemList[position].getPrice() + "€ por día");
     }
+
+    @Override
     public int getItemCount() {
-        if (_gameList == null)
+        if (_itemList == null)
             return 0;
-        return _gameList.length;
+
+        return _itemList.length;
     }
-
-
 }
+

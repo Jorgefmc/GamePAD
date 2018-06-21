@@ -66,6 +66,10 @@
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyD5w17x9hUJOajfMmVChduwaS7VupyCAN4" />
 
+        <activity
+            android:name=".TabTestActivity"
+            android:label="@string/title_activity_tab_test"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

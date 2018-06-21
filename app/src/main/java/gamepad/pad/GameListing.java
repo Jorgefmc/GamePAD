@@ -13,6 +13,7 @@ public class GameListing implements Serializable{
     private long _game_id;
     private String _game_name;
     private String _game_desc;
+    private String _game_url;
     private long _renter;
     private float _price_day;
 
@@ -28,6 +29,10 @@ public class GameListing implements Serializable{
         return _game_desc;
     }
 
+    public String getUrl () {
+        return _game_url;
+    }
+
     public long getRenter() {
         return _renter;
     }
@@ -37,10 +42,11 @@ public class GameListing implements Serializable{
         return _price_day;
     }
 
-    public GameListing (long id, String gameName, String gameDesc, long renter, float pricePerDay) {
+    public GameListing (long id, String gameName, String gameDesc, String url, long renter, float pricePerDay) {
         _game_id = id;
         _game_name = gameName;
         _game_desc = gameDesc;
+        _game_url = url;
         _renter = renter;
         _price_day = pricePerDay;
     }

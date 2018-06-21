@@ -33,6 +33,7 @@ public class RentActivity extends AppCompatActivity {
     private long selectedGameID = -1;
     private String selectedGameName = null;
     private String selectedGameDesc = null;
+    private String selectedGameURL = null;
 
     private GameSearcher searcher;
     private long user_id;
@@ -69,6 +70,7 @@ public class RentActivity extends AppCompatActivity {
 
         selectedGameName = null;
         selectedGameDesc = null;
+        selectedGameURL = null;
 
         user_id = getIntent().getLongExtra("id", -1);
     }
@@ -92,7 +94,7 @@ public class RentActivity extends AppCompatActivity {
 
             Parameters params = new Parameters();
             params.addSearch(query);
-            params.addFields("id, name, summary");
+            params.addFields("id, name, summary, url");
             params.addLimit("1");
 
 
@@ -102,6 +104,7 @@ public class RentActivity extends AppCompatActivity {
                 public void onSuccess(JSONArray jsonArray) {
                     String name = null;
                     String desc = null;
+                    String url =  null;
                     long gameID = -1;
 
                     try {
@@ -109,18 +112,19 @@ public class RentActivity extends AppCompatActivity {
                         gameID = result.getLong("id");
                         name = result.getString("name");
                         desc = result.getString("summary");
+                        url = result.getString("url");
 
 
                     } catch (JSONException e) {}
 
                     boolean res = gameID != -1;
 
-                    _parent.searchCallback(res, gameID, name, desc);
+                    _parent.searchCallback(res, gameID, name, desc, url);
                 }
 
                 @Override
                 public void onError(VolleyError volleyError) {
-                    _parent.searchCallback(false, -1, null, null);
+                    _parent.searchCallback(false, -1, null, null, null);
                 }
             });
 
@@ -134,17 +138,19 @@ public class RentActivity extends AppCompatActivity {
         }
     }
 
-    private void searchCallback(boolean success, long gameID, String name, String desc) {
+    private void searchCallback(boolean success, long gameID, String name, String desc, String url) {
         if (success) {
             selectedGameID = gameID;
             selectedGameName = name;
             selectedGameDesc = desc;
+            selectedGameURL = url;
             ((TextView) findViewById(R.id.rent_game_result)).setText(name);
         }
         else {
             selectedGameID = -1;
             selectedGameName = null;
             selectedGameDesc = null;
+            selectedGameURL = null;
             ((TextView) findViewById(R.id.rent_game_result)).setText("Juego no encontrado.");
         }
 
@@ -181,7 +187,7 @@ public class RentActivity extends AppCompatActivity {
         //TODO get location and if the location is valid, add it to the game
 
 
-        GameListing gameListing = new GameListing(selectedGameID, selectedGameName, selectedGameDesc, user_id, price);
+        GameListing gameListing = new GameListing(selectedGameID, selectedGameName, selectedGameDesc, selectedGameURL, user_id, price);
 
 
         Intent returnIntent = new Intent();

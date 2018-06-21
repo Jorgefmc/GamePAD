@@ -1,17 +1,12 @@
 package gamepad.pad;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -24,7 +19,7 @@ import android.widget.TextView;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        OffersFragment.OnFragmentInteractionListener, ActivesFragment.OnFragmentInteractionListener{
+        OffersFragment.OnFragmentInteractionListener, ActiveOffersFragment.OnFragmentInteractionListener{
 
     private long _userID;
     private LocationManager _locationManager;
@@ -107,7 +102,7 @@ public class MenuActivity extends AppCompatActivity
             fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance(_userID)).commit();
         } else if (id == R.id.menu_activeItem) {
             getSupportActionBar().setTitle("Activos");
-            fm.beginTransaction().replace(R.id.menu_contentFrame, ActivesFragment.newInstance(_userID)).commit();
+            fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOffersFragment.newInstance(_userID)).commit();
         } else if (id == R.id.menu_rentItem) {
             Intent intent = new Intent(MenuActivity.this, RentActivity.class);
             intent.putExtra("id", _userID);
@@ -147,7 +142,7 @@ public class MenuActivity extends AppCompatActivity
 
                 FragmentManager fm = getFragmentManager();
                 getSupportActionBar().setTitle("Activos");
-                fm.beginTransaction().replace(R.id.menu_contentFrame, ActivesFragment.newInstance(_userID)).commit();
+                fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOffersFragment.newInstance(_userID)).commit();
 
             }
         }

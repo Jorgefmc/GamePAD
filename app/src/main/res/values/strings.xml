@@ -42,6 +42,10 @@
     <string name="title_activity_test">TestActivity</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_game_search">GameSearchActivity</string>
+    <string name="title_activity_tab_test">TabTestActivity</string>
+    <string name="tab_text_1">Recibidos</string>
+    <string name="tab_text_2">Ofertas</string>
+    <string name="tab_text_3">Prestados</string>
 
 
 </resources>

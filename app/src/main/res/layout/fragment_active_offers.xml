@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="gamepad.pad.ActivesFragment">
+    tools:context="gamepad.pad.ActiveOffersFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/actives_itemList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 </FrameLayout>

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
@@ -74,7 +75,8 @@ public class DBConnection extends SQLiteOpenHelper{
         db.execSQL("CREATE TABLE IF NOT EXISTS Games(" +
                 "id INTEGER PRIMARY KEY, " +
                 "name TEXT, " +
-                "description TEXT);");
+                "description TEXT, " +
+                "url TEXT);");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS Listings (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -241,6 +243,7 @@ public class DBConnection extends SQLiteOpenHelper{
             values.put("id", gameListing.getId());
             values.put ("name", gameListing.getName());
             values.put ("description", gameListing.getDesc());
+            values.put ("url", gameListing.getUrl());
 
             db.insert("Games", null, values);
 
@@ -266,25 +269,28 @@ public class DBConnection extends SQLiteOpenHelper{
                 null, null, null);
 
         GameListing [] res = null;
-        if (cursor.moveToFirst()) {
-            res = new GameListing[cursor.getCount()];
-            int pos = 0;
-            do {
-                long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
-                long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
-                float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
-                Cursor gameCursor = db.query("Games", new String[]{"name", "description"},
-                        "id=? ", new String[] {"" + game_id},
-                        null, null, null);
-                if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
-                    String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
-                    String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
-                    res[pos] = new GameListing(game_id, gameName, gameDesc, user_id, price_day);
-                }
-                gameCursor.close();
-                pos++;
-            }while(cursor.moveToNext());
-        }
+        try {
+            if (cursor.moveToFirst()) {
+                res = new GameListing[cursor.getCount()];
+                int pos = 0;
+                do {
+                    long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
+                    long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
+                    float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
+                    Cursor gameCursor = db.query("Games", new String[]{"name", "description", "url"},
+                            "id=? ", new String[]{"" + game_id},
+                            null, null, null);
+                    if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+                        String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
+                        String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
+                        String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
+                        res[pos] = new GameListing(game_id, gameName, gameDesc, gameURL, user_id, price_day);
+                    }
+                    gameCursor.close();
+                    pos++;
+                } while (cursor.moveToNext());
+            }
+        }catch (SQLiteException e) {res = null;}
         cursor.close();
 
         return res;
@@ -307,13 +313,14 @@ public class DBConnection extends SQLiteOpenHelper{
                 long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
                 long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
                 float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
-                Cursor gameCursor = db.query("Games", new String[]{"name", "description"},
+                Cursor gameCursor = db.query("Games", new String[]{"name", "description", "url"},
                         "id=? ", new String[] {"" + game_id},
                         null, null, null);
                 if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
                     String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
                     String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
-                    res[pos] = new GameListing(game_id, gameName, gameDesc, user_id, price_day);
+                    String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
+                    res[pos] = new GameListing(game_id, gameName, gameDesc, gameURL, user_id, price_day);
                 }
                 gameCursor.close();
                 pos++;
