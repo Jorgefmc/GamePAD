@@ -11,12 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -29,22 +24,23 @@ import java.util.concurrent.TimeUnit;
  */
 public class ActivesFragment extends Fragment {
 
-    private String [] _activesList = {"Nier: Automata", "The Witcher 3"};
-    private Date [] _datesList = {Date.valueOf("2018-06-19"), Date.valueOf("2018-06-28")};
-
-
     private RecyclerView _recyclerView;
     private RecyclerView.LayoutManager _layoutManager;
     private ActivesItemListAdapter _adapter;
+    private long _userID;
 
     private ActivesFragment.OnFragmentInteractionListener mListener;
 
     public ActivesFragment() {
-        // Required empty public constructor
     }
 
-    public static ActivesFragment newInstance() {
+    public void setUser(long userID) {
+        _userID = userID;
+    }
+
+    public static ActivesFragment newInstance(long userId) {
         ActivesFragment fragment = new ActivesFragment();
+        fragment.setUser (userId);
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -70,10 +66,16 @@ public class ActivesFragment extends Fragment {
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new ActivesItemListAdapter(_activesList, _datesList,v.getContext());
+        _adapter = new ActivesItemListAdapter(v.getContext(), _userID);
         _recyclerView.setAdapter(_adapter);
 
         return v;
+    }
+
+    @Override
+    public void onResume () {
+        super.onResume();
+        _adapter.update();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -119,10 +121,10 @@ public class ActivesFragment extends Fragment {
 
 
 class ActivesItemListAdapter extends  RecyclerView.Adapter<ActivesItemListAdapter.ActivesViewHolder> {
-    private String [] _itemList;
-    private Date [] _dateList;
     private Context _context;
     private SimpleDateFormat _dateFormat;
+    private GameListing [] _itemList;
+    private long _userID;
 
     public static  class ActivesViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
@@ -136,30 +138,38 @@ class ActivesItemListAdapter extends  RecyclerView.Adapter<ActivesItemListAdapte
 
     }
 
-    public ActivesItemListAdapter(String [] itemList, Date [] dateList, Context context) {
-        _itemList = itemList;
-        _dateList = dateList;
+    public ActivesItemListAdapter(Context context, long userID) {
+        _userID = userID;
         _context = context;
+
+
+    }
+
+    public  void update () {
+        _itemList = DBConnection.db(_context).getGameListingsFromUser(_userID);
     }
 
     @Override
     public ActivesItemListAdapter.ActivesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
 
-
         return new ActivesViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ActivesItemListAdapter.ActivesViewHolder holder, int position) {
-        holder._head.setText(_itemList[position]);
-        long diff = _dateList[position].getTime() - System.currentTimeMillis();
-        long daysLeft = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
-        holder._body.setText(daysLeft + " días restantes.");
+
+        holder._head.setText(_itemList[position].getName());
+        /*long diff = _dateList[position].getTime() - System.currentTimeMillis();
+        long daysLeft = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);*/
+        holder._body.setText(_itemList[position].getPrice() + "€ por día");
     }
 
     @Override
     public int getItemCount() {
+        if (_itemList == null)
+            return 0;
+
         return _itemList.length;
     }
 }

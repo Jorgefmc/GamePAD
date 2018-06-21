@@ -24,6 +24,8 @@
     <string name="item_history">Historial</string>
     <string name="item_settings">Opciones</string>
     <string name="item_exit">Cerrar Sesión</string>
+    <string name="search_game_hint">Buscar juego</string>
+
 
     <string name="action_settings">Settings</string>
 
@@ -38,6 +40,8 @@
     <string name="title_activity_rent">Alquilar</string>
     <string name="title_activity_register">RegisterActivity</string>
     <string name="title_activity_test">TestActivity</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_game_search">GameSearchActivity</string>
 
 
 </resources>

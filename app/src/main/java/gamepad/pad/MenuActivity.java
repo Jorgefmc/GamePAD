@@ -5,6 +5,8 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -25,10 +27,13 @@ public class MenuActivity extends AppCompatActivity
         OffersFragment.OnFragmentInteractionListener, ActivesFragment.OnFragmentInteractionListener{
 
     private long _userID;
+    private LocationManager _locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Intent intent = getIntent();
+        _userID = intent.getLongExtra("id", -1);
         setContentView(R.layout.activity_menu);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -42,8 +47,9 @@ public class MenuActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         FragmentManager fm = getFragmentManager();
-        fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance()).commit();
+        fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance(_userID)).commit();
         getSupportActionBar().setTitle("Ofertas");
 
     }
@@ -62,8 +68,6 @@ public class MenuActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu, menu);
-        Intent intent = getIntent();
-        _userID = intent.getLongExtra("id", -1);
 
         String name = DBConnection.db(getApplicationContext()).getUserName(_userID);
         TextView vuname = findViewById(R.id.sidebar_name);
@@ -100,12 +104,14 @@ public class MenuActivity extends AppCompatActivity
 
         if (id == R.id.menu_offersItem) {
             getSupportActionBar().setTitle("Ofertas");
-            fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance()).commit();
+            fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance(_userID)).commit();
         } else if (id == R.id.menu_activeItem) {
             getSupportActionBar().setTitle("Activos");
-            fm.beginTransaction().replace(R.id.menu_contentFrame, ActivesFragment.newInstance()).commit();
+            fm.beginTransaction().replace(R.id.menu_contentFrame, ActivesFragment.newInstance(_userID)).commit();
         } else if (id == R.id.menu_rentItem) {
-            startActivity(new Intent(MenuActivity.this, RentActivity.class));
+            Intent intent = new Intent(MenuActivity.this, RentActivity.class);
+            intent.putExtra("id", _userID);
+            startActivityForResult(intent, 1);
         } else if (id == R.id.menu_accountItem) {
 
         } else if (id == R.id.menu_historyItem) {
@@ -126,6 +132,25 @@ public class MenuActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 1) {
+            if (resultCode == RESULT_OK) {
+                //Se ha puesto un nuevo juego en alquiler.
+                GameListing gameListing = (GameListing) data.getSerializableExtra("game");
+
+                //gameListing es el juego
+                DBConnection.db(getApplicationContext()).addListing(gameListing);
+
+                FragmentManager fm = getFragmentManager();
+                getSupportActionBar().setTitle("Activos");
+                fm.beginTransaction().replace(R.id.menu_contentFrame, ActivesFragment.newInstance(_userID)).commit();
+
+            }
+        }
     }
 
     @Override

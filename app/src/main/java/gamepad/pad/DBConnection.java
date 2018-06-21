@@ -51,16 +51,17 @@ public class DBConnection extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
         killAll(db);
         createAll(db);
+        //TODO default user must not make it to the release
         addDefault(db);
     }
 
     private void killAll (SQLiteDatabase db) {
-        db.execSQL ("DROP TABLE IF EXISTS Users; " +
-                "DROP TABLE IF EXISTS Games; " +
-                "DROP TABLE IF EXISTS Listings; " +
-                "DROP TABLE IF EXISTS ActiveRents; " +
-                "DROP TABLE IF EXISTS CompletedRents; " +
-                "VACUUM");
+        db.execSQL ("DROP TABLE IF EXISTS Users;");
+        db.execSQL ("DROP TABLE IF EXISTS Games;");
+        db.execSQL ("DROP TABLE IF EXISTS Listings;");
+        db.execSQL ("DROP TABLE IF EXISTS ActiveRents;");
+        db.execSQL ("DROP TABLE IF EXISTS CompletedRents;");
+        db.execSQL("VACUUM");
     }
 
     private void createAll (SQLiteDatabase db) {
@@ -71,17 +72,15 @@ public class DBConnection extends SQLiteOpenHelper{
                 "pw TEXT);");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS Games(" +
-                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "id INTEGER PRIMARY KEY, " +
                 "name TEXT, " +
                 "description TEXT);");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS Listings (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "user_id INTEGER, " +
                 "game_id INTEGER, " +
-                "date DATETIME, " +
-                "price_day REAL, " +
-                "location BLOB, " +
-                "PRIMARY KEY (user_id, game_id, date));");
+                "price_day REAL);");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS ActiveRents (" +
                 "giver_id INTEGER, " +
@@ -226,4 +225,102 @@ public class DBConnection extends SQLiteOpenHelper{
         return res;
     }
 
+    public void addListing(GameListing gameListing) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.query("Games", new String[]{"id"},
+                "id=? ", new String[] {"" + gameListing.getId()},
+                null, null, null);
+
+
+
+        if (!cursor.moveToFirst()){
+            cursor.close();
+
+            ContentValues values = new ContentValues();
+            values.put("id", gameListing.getId());
+            values.put ("name", gameListing.getName());
+            values.put ("description", gameListing.getDesc());
+
+            db.insert("Games", null, values);
+
+        }
+        cursor.close();
+
+        ContentValues values = new ContentValues();
+        values.put ("user_id", gameListing.getRenter());
+        values.put ("game_id", gameListing.getId());
+        values.put ("price_day", gameListing.getPrice());
+
+        db.insert("Listings", null, values);
+
+    }
+
+
+
+    public GameListing[] getExclusiveGameListings(long userID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.query("Listings", null,
+                "user_id<>?", new String []{"" + userID},
+                null, null, null);
+
+        GameListing [] res = null;
+        if (cursor.moveToFirst()) {
+            res = new GameListing[cursor.getCount()];
+            int pos = 0;
+            do {
+                long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
+                long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
+                float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
+                Cursor gameCursor = db.query("Games", new String[]{"name", "description"},
+                        "id=? ", new String[] {"" + game_id},
+                        null, null, null);
+                if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+                    String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
+                    String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
+                    res[pos] = new GameListing(game_id, gameName, gameDesc, user_id, price_day);
+                }
+                gameCursor.close();
+                pos++;
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return res;
+    }
+
+    public GameListing[] getGameListingsFromUser(long userID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.query("Listings", null,
+                "user_id=?", new String []{"" + userID},
+                null, null, null);
+
+
+
+        GameListing [] res = null;
+        if (cursor.moveToFirst()) {
+            res = new GameListing[cursor.getCount()];
+            int pos = 0;
+            do {
+                long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
+                long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
+                float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
+                Cursor gameCursor = db.query("Games", new String[]{"name", "description"},
+                        "id=? ", new String[] {"" + game_id},
+                        null, null, null);
+                if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+                    String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
+                    String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
+                    res[pos] = new GameListing(game_id, gameName, gameDesc, user_id, price_day);
+                }
+                gameCursor.close();
+                pos++;
+            }while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return res;
+    }
 }

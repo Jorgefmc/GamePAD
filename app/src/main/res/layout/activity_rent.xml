@@ -20,5 +20,9 @@
     </android.support.design.widget.AppBarLayout>
 
     <include
-        layout="@layout/content_rent"/>
+        layout="@layout/content_rent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="56dp"
+        android:visibility="visible" />
 </android.support.design.widget.CoordinatorLayout>

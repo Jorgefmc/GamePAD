@@ -2,6 +2,8 @@ package gamepad.pad;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.location.Location;
+import android.location.LocationListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,24 +16,22 @@ import android.widget.TextView;
 
 
 public class OffersFragment extends Fragment {
-    private String [] _gameList = {"God of War", "Nier: Automata", "Transistor", "Journey", "Pyre",
-            "Hellblade: Senua's Sacrifice", "The Witcher 3", "Monster Hunter: World", "Bloodborne",
-            "Celeste", "Wolfenstein II: The New Colossus", "Resident Evil VII", "Dishonored 2", "Dark Souls 3"};
 
     private RecyclerView _recyclerView;
     private LayoutManager _layoutManager;
     private OffersItemListAdapter _adapter;
-
+    private long _userID;
     private OnFragmentInteractionListener mListener;
 
     public OffersFragment() {
-        // Required empty public constructor
     }
 
-    public static OffersFragment newInstance() {
+    public static OffersFragment newInstance(long userId) {
         OffersFragment fragment = new OffersFragment();
         Bundle args = new Bundle();
+        args.putLong("id", userId);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -49,16 +49,24 @@ public class OffersFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_offers, container, false);
 
+
         _recyclerView = (RecyclerView) v.findViewById(R.id.offers_itemsList);
         _recyclerView.setHasFixedSize(true);
 
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new OffersItemListAdapter(_gameList, v.getContext());
+        _userID = getArguments().getLong("id");
+        _adapter = new OffersItemListAdapter(v.getContext(), _userID);
         _recyclerView.setAdapter(_adapter);
 
         return v;
+    }
+
+    @Override
+    public void onResume () {
+        super.onResume();
+        _adapter.update();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -103,8 +111,10 @@ public class OffersFragment extends Fragment {
 }
 
 class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.OffersViewHolder> {
-    private String [] _itemList;
     private Context _context;
+    private long _userID;
+    private GameListing [] _gameList;
+
 
     public static  class OffersViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
@@ -118,10 +128,13 @@ class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.
 
     }
 
-    public OffersItemListAdapter(String [] itemList, Context context) {
-        _itemList = itemList;
+    public OffersItemListAdapter(Context context, long userID) {
         _context = context;
+        _userID = userID;
+    }
 
+    public void update() {
+        _gameList = DBConnection.db(_context).getExclusiveGameListings(_userID);
     }
 
     @Override
@@ -134,10 +147,39 @@ class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.
 
     @Override
     public void onBindViewHolder(OffersViewHolder holder, int position) {
-        holder._head.setText(_itemList[position]);
-        holder._body.setText("");
+        if (getItemCount() > 0) {
+            holder._head.setText(_gameList[position].getName());
+            holder._body.setText(_gameList[position].getPrice() + "€ por día");
+        }
     }
     public int getItemCount() {
-        return _itemList.length;
+        if (_gameList == null)
+            return 0;
+        return _gameList.length;
+    }
+
+
+
+    private class OffersLocationListener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location location) {
+
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
     }
 }
