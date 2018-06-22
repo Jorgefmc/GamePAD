@@ -7,6 +7,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by Ynscription on 19/06/2018.
  */
@@ -18,6 +21,7 @@ public class DBConnection extends SQLiteOpenHelper{
     private static DBConnection instance= null;
     public static final long DEFAULT_USER = 0;
     private SQLiteDatabase _db;
+    private SimpleDateFormat _df;
 
     //Thread safe singleton
     public static DBConnection db (Context context) {
@@ -33,6 +37,7 @@ public class DBConnection extends SQLiteOpenHelper{
 
     private DBConnection(Context context) {
         super(context, _DATABASE_NAME, null, _DATABASE_VERSION);
+        _df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     }
 
 
@@ -86,23 +91,21 @@ public class DBConnection extends SQLiteOpenHelper{
                 "price_day REAL);");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS ActiveRents (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "giver_id INTEGER, " +
                 "receiver_id INTEGER, " +
                 "game_id INTEGER, " +
                 "start_date DATETIME, " +
-                "end_date DATETIME, " +
-                "price_day REAL, " +
-                "location BLOB, " +
-                "PRIMARY KEY (giver_id, receiver_id, game_id, start_date));");
+                "price_day REAL);");
 
         db.execSQL("CREATE TABLE IF NOT EXISTS CompletedRents (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "giver_id INTEGER, " +
                 "receiver_id INTEGER, " +
                 "game_id INTEGER, " +
                 "start_date DATETIME, " +
                 "end_date DATETIME, " +
-                "price_total REAL, " +
-                "PRIMARY KEY (giver_id, receiver_id, game_id, start_date));");
+                "price_total REAL);");
 
     }
 
@@ -332,7 +335,73 @@ public class DBConnection extends SQLiteOpenHelper{
         return res;
     }
 
-    public GameListing[] getOnRentByUser(long userID) {
+    public long addRenting (GameRenting game) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put ("giver_id", game.getGiver());
+        values.put ("receiver_id", game.getReceiver());
+        values.put ("game_id", game.getGameId());
+        values.put("start_date", _df.format(game.getStartDate()));
+        values.put ("price_day", game.getPrice());
+
+        long id = db.insert("ActiveRents", null, values);
+
+        //db.close();
+
+        return id;
+
+    }
+
+    public long finishRenting (long id) {
+        SQLiteDatabase db = getWritableDatabase();
+
+        Cursor activeCursor = db.query("ActiveRents", new String[]{"id"},
+                "id=?", new String []{"" + id},
+                null, null, null);
+
+        if (activeCursor.moveToFirst() && activeCursor.getCount() == 1) {
+
+            long giver = activeCursor.getLong(activeCursor.getColumnIndex("giver_id"));
+            long receiver = activeCursor.getLong(activeCursor.getColumnIndex("receiver_id"));
+            long gameId = activeCursor.getLong(activeCursor.getColumnIndex("game_id"));
+            String startDate = activeCursor.getString(activeCursor.getColumnIndex("start_date"));
+            float price = activeCursor.getFloat(activeCursor.getColumnIndex("price_day"));
+
+
+            int res = db.delete("ActiveRents", "id=?", new String[]{"" + id});
+            if (res != 1) {
+                //TODO This should throw an exception
+            }
+
+            ContentValues values = new ContentValues();
+            values.put ("giver_id", giver);
+            values.put ("receiver_id", receiver);
+            values.put ("game_id", gameId);
+            values.put("start_date", startDate);
+            values.put("end_date", _df.format(new Date()));
+            values.put ("price_day", price);
+
+            long newId = db.insert("CompletedRents", null, values);
+            activeCursor.close();
+
+            return newId;
+        }
+        else {
+            activeCursor.close();
+            return -1;
+        }
+
+    }
+
+    public GameRenting[] getOnRentByUser(long userID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.query("ActiveRents", null,
+                "giver_id=?", new String []{"" + userID},
+                null, null, null);
+
+
 
         return null;
     }

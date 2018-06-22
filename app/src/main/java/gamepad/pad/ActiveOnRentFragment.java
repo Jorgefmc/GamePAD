@@ -10,9 +10,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 
 public class ActiveOnRentFragment extends Fragment {
@@ -54,7 +57,7 @@ public class ActiveOnRentFragment extends Fragment {
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new OnRentListAdapter(v.getContext(), _userID);
+        _adapter = new OnRentListAdapter(v.getContext(), _userID, this);
         _recyclerView.setAdapter(_adapter);
 
 
@@ -72,6 +75,10 @@ public class ActiveOnRentFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    public void onRentFinish (GameRenting rent) {
+
     }
 
     @Override
@@ -110,27 +117,32 @@ public class ActiveOnRentFragment extends Fragment {
 
 class OnRentListAdapter extends  RecyclerView.Adapter<OnRentListAdapter.OnRentViewHolder> {
 
+    private ActiveOnRentFragment _parent;
     private Context _context;
-    private SimpleDateFormat _dateFormat;
-    private GameListing [] _itemList;
+    private GameRenting [] _itemList;
     private long _userID;
+    private DecimalFormat _df;
 
     public static  class OnRentViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
         public TextView _body;
+        public Button _finishButton;
 
         public OnRentViewHolder (View v) {
             super(v);
-            _head = (TextView)v.findViewById(R.id.list_item_Head);
-            _body = (TextView)v.findViewById(R.id.list_item_Body);
+            _head = (TextView)v.findViewById(R.id.rent_list_item_Head);
+            _body = (TextView)v.findViewById(R.id.rent_list_item_Body);
+            _finishButton = (Button) v.findViewById(R.id.rent_finish_rent);
         }
 
     }
 
-    public OnRentListAdapter(Context context, long userID) {
+    public OnRentListAdapter(Context context, long userID, ActiveOnRentFragment parent) {
         _userID = userID;
         _context = context;
-
+        _df = new DecimalFormat();
+        _df.setMaximumFractionDigits(2);
+        _parent = parent;
 
     }
 
@@ -142,18 +154,26 @@ class OnRentListAdapter extends  RecyclerView.Adapter<OnRentListAdapter.OnRentVi
 
     @Override
     public OnRentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.rent_list_item, parent, false);
 
         return new OnRentViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(OnRentListAdapter.OnRentViewHolder holder, int position) {
+    public void onBindViewHolder(OnRentListAdapter.OnRentViewHolder holder, final int position) {
 
         holder._head.setText(_itemList[position].getName());
-        /*long diff = _dateList[position].getTime() - System.currentTimeMillis();
-        long daysLeft = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);*/
-        holder._body.setText(_itemList[position].getPrice() + "€ por día");
+        long diff = _itemList[position].getStartDate().getTime() - System.currentTimeMillis();
+        long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+        float totalAmount = days * _itemList[position].getPrice();
+        holder._body.setText(_df.format(totalAmount) + "€");
+        holder._finishButton.setText("Recuperar");
+        holder._finishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _parent.onRentFinish(_itemList[position]);
+            }
+        });
     }
 
     @Override

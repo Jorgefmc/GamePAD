@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
 
 
 /**
@@ -121,7 +120,6 @@ public class ActiveOffersFragment extends Fragment {
 class OffersListAdapter extends  RecyclerView.Adapter<OffersListAdapter.ActivesViewHolder> {
 
     private Context _context;
-    private SimpleDateFormat _dateFormat;
     private GameListing [] _itemList;
     private long _userID;
 
