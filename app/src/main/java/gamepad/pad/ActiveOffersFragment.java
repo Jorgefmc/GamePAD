@@ -22,7 +22,8 @@ import java.text.SimpleDateFormat;
  * Use the {@link ActiveOffersFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ActiveOffersFragment extends Fragment {
+public class
+ActiveOffersFragment extends Fragment {
 
     private RecyclerView _recyclerView;
     private RecyclerView.LayoutManager _layoutManager;
