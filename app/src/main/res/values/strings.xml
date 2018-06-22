@@ -17,12 +17,10 @@
     </string>
     <string name="title_activity_main">MainActivity</string>
     <string name="item_offers">Ofertas</string>
-    <string name="item_actives">Activos</string>
+    <string name="item_actives">Alquilados</string>
     <string name="item_rent">Alquilar</string>
     <string name="item_separator">Mi GamePAD</string>
-    <string name="item_account">Cuenta</string>
     <string name="item_history">Historial</string>
-    <string name="item_settings">Opciones</string>
     <string name="item_exit">Cerrar Sesión</string>
     <string name="search_game_hint">Buscar juego</string>
 
@@ -48,7 +46,7 @@
     <string name="tab_text_3">Prestados</string>
     <string name="title_activity_offer_inspect">OfferInspectActivity</string>
     <string name="item_onOffer">En oferta</string>
-    <string name="item_onRent">Alquilando</string>
+    <string name="item_onRent">Prestados</string>
     <string name="title_activity_active_on_rent_fragment">ActiveOnRentFragment</string>
 
 

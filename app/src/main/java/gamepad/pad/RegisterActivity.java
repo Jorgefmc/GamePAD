@@ -105,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private boolean checkEmail (String email) {
-        return email.contains("@");
+        return email.contains("@") && email.contains(".");
     }
 
     private boolean checkName (String name) {

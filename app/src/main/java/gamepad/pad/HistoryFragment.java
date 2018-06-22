@@ -1,37 +1,38 @@
 package gamepad.pad;
 
+
 import android.app.Fragment;
 import android.content.Context;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.TimeUnit;
 
 
-public class ActiveOnRentFragment extends Fragment {
+public class HistoryFragment extends Fragment {
     private RecyclerView _recyclerView;
     private RecyclerView.LayoutManager _layoutManager;
-    private OnRentListAdapter _adapter;
+    private HistoryListAdapter _adapter;
     private long _userID;
 
-    private ActiveOnRentFragment.OnFragmentInteractionListener mListener;
+    private OnFragmentInteractionListener mListener;
 
-    public ActiveOnRentFragment() {
+    public HistoryFragment() {
         // Required empty public constructor
     }
 
-    public static ActiveOnRentFragment newInstance(long userId) {
-        ActiveOnRentFragment fragment = new ActiveOnRentFragment();
+
+    public static HistoryFragment newInstance(long userId) {
+        HistoryFragment fragment = new HistoryFragment();
         Bundle args = new Bundle();
         args.putLong("user", userId);
         fragment.setArguments(args);
@@ -49,23 +50,19 @@ public class ActiveOnRentFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_active_on_rent, container, false);
+        View v = inflater.inflate(R.layout.fragment_history, container, false);
 
-        _recyclerView = (RecyclerView) v.findViewById(R.id.active_on_rent_list);
+        _recyclerView = (RecyclerView) v.findViewById(R.id.history_list);
         _recyclerView.setHasFixedSize(true);
 
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new OnRentListAdapter(v.getContext(), _userID, this);
+        _adapter = new HistoryListAdapter(v.getContext(), _userID);
         _recyclerView.setAdapter(_adapter);
-
-
 
         return v;
     }
-
-
 
     @Override
     public void onResume () {
@@ -73,16 +70,11 @@ public class ActiveOnRentFragment extends Fragment {
         _adapter.update();
     }
 
+    // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
-    }
-
-    public void onRentFinish (GameRenting gameRenting) {
-        DBConnection.db(getActivity().getApplicationContext()).finishRenting(gameRenting.getRentId());
-        _adapter.update();
-        getFragmentManager().beginTransaction().replace(R.id.menu_contentFrame, ActiveOnRentFragment.newInstance(_userID)).commit();
     }
 
     @Override
@@ -102,6 +94,8 @@ public class ActiveOnRentFragment extends Fragment {
         mListener = null;
     }
 
+
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -116,68 +110,63 @@ public class ActiveOnRentFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
 }
 
-class OnRentListAdapter extends  RecyclerView.Adapter<OnRentListAdapter.OnRentViewHolder> {
 
-    private ActiveOnRentFragment _parent;
+class HistoryListAdapter extends  RecyclerView.Adapter<HistoryListAdapter.HistoryViewHolder> {
+
     private Context _context;
     private GameRenting [] _itemList;
     private long _userID;
     private DecimalFormat _df;
+    private SimpleDateFormat _dateFormat;
 
-    public static  class OnRentViewHolder extends RecyclerView.ViewHolder {
+    public static  class HistoryViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
         public TextView _body;
-        public Button _finishButton;
+        public ImageView _status;
 
-        public OnRentViewHolder (View v) {
+        public HistoryViewHolder (View v) {
             super(v);
-            _head = (TextView)v.findViewById(R.id.rent_list_item_Head);
-            _body = (TextView)v.findViewById(R.id.rent_list_item_Body);
-            _finishButton = (Button) v.findViewById(R.id.rent_finish_rent);
+            _head = (TextView)v.findViewById(R.id.history_list_item_Head);
+            _body = (TextView)v.findViewById(R.id.history_list_item_Body);
+            _status = (ImageView) v.findViewById(R.id.history_list_item_status);
         }
 
     }
 
-    public OnRentListAdapter(Context context, long userID, ActiveOnRentFragment parent) {
+    public HistoryListAdapter(Context context, long userID) {
         _userID = userID;
         _context = context;
         _df = new DecimalFormat();
         _df.setMaximumFractionDigits(2);
-        _parent = parent;
+        _dateFormat = new SimpleDateFormat("dd/MM/yy");
 
     }
 
     public  void update () {
 
-        _itemList = DBConnection.db(_context).getOnRentByUser(_userID);
+        _itemList = DBConnection.db(_context).getHistoryByUser(_userID);
 
     }
 
     @Override
-    public OnRentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.rent_list_item, parent, false);
+    public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.history_list_item, parent, false);
 
-        return new OnRentViewHolder(v);
+        return new HistoryViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(OnRentListAdapter.OnRentViewHolder holder, final int position) {
+    public void onBindViewHolder(HistoryListAdapter.HistoryViewHolder holder, int position) {
 
         holder._head.setText(_itemList[position].getName());
-        long diff = _itemList[position].getStartDate().getTime() - System.currentTimeMillis();
-        long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
-        float totalAmount = days * _itemList[position].getPrice();
-        holder._body.setText(_df.format(totalAmount) + "€");
-        holder._finishButton.setText("Recuperar");
-        holder._finishButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                _parent.onRentFinish(_itemList[position]);
-            }
-        });
+        float totalAmount =  _itemList[position].getPrice();
+        String startDate = _dateFormat.format(_itemList[position].getStartDate());
+        String endDate = _dateFormat.format(_itemList[position].getEndDate());
+        holder._body.setText(_df.format(totalAmount) + "€ (" + startDate + " - " + endDate + ")");
+        if (_userID == _itemList[position].getGiver())
+            holder._status.setImageResource(R.drawable.ic_given);
     }
 
     @Override

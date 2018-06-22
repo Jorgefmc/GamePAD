@@ -18,18 +18,26 @@
         <menu>
             <item
                 android:id="@+id/menu_activeItem"
+                android:icon="@drawable/ic_received"
                 android:title="@string/item_actives" />
             <item
                 android:id="@+id/menu_onOfferItem"
                 android:title="@string/item_onOffer" />
             <item
                 android:id="@+id/menu_onRentItem"
+                android:icon="@drawable/ic_given"
                 android:title="@string/item_onRent" />
+
+            <item
+                android:id="@+id/menu_history"
+                android:title="@string/item_history" />
 
             <item
                 android:id="@+id/menu_exitItem"
                 android:icon="@drawable/ic_logout"
                 android:title="@string/item_exit" />
+
+
         </menu>
     </item>
 

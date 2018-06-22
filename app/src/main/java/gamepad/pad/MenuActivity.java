@@ -20,7 +20,8 @@ import android.widget.TextView;
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OffersFragment.OnFragmentInteractionListener, ActiveOffersFragment.OnFragmentInteractionListener,
-        ActiveReceivedFragment.OnFragmentInteractionListener, ActiveOnRentFragment.OnFragmentInteractionListener{
+        ActiveReceivedFragment.OnFragmentInteractionListener, ActiveOnRentFragment.OnFragmentInteractionListener,
+        HistoryFragment.OnFragmentInteractionListener{
 
     private long _userID;
     private LocationManager _locationManager;
@@ -99,7 +100,7 @@ public class MenuActivity extends AppCompatActivity
         FragmentManager fm = getFragmentManager();
 
         if (id == R.id.menu_offersItem) {
-            getSupportActionBar().setTitle("Ofertas");
+            getSupportActionBar().setTitle(R.string.item_offers);
             fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance(_userID)).commit();
         }
         else if (id == R.id.menu_rentItem) {
@@ -108,16 +109,20 @@ public class MenuActivity extends AppCompatActivity
             startActivityForResult(intent, 1);
         }
         else if (id == R.id.menu_activeItem) {
-            getSupportActionBar().setTitle("Activos");
+            getSupportActionBar().setTitle(R.string.item_actives);
             fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveReceivedFragment.newInstance(_userID)).commit();
         }
         else if (id == R.id.menu_onOfferItem) {
-            getSupportActionBar().setTitle("En oferta");
+            getSupportActionBar().setTitle(R.string.item_onOffer);
             fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOffersFragment.newInstance(_userID)).commit();
         }
         else if (id == R.id.menu_onRentItem) {
-            getSupportActionBar().setTitle("Alquilados");
+            getSupportActionBar().setTitle(R.string.item_onRent);
             fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOnRentFragment.newInstance(_userID)).commit();
+        }
+        else if (id == R.id.menu_history) {
+            getSupportActionBar().setTitle(R.string.item_history);
+            fm.beginTransaction().replace(R.id.menu_contentFrame, HistoryFragment.newInstance(_userID)).commit();
         }
         else if (id == R.id.menu_exitItem) {
             SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
@@ -136,7 +141,7 @@ public class MenuActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+    public void onActivityResult (int requestCode, int resultCode, Intent data) {
 
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -147,8 +152,24 @@ public class MenuActivity extends AppCompatActivity
                 DBConnection.db(getApplicationContext()).addListing(gameListing);
 
                 FragmentManager fm = getFragmentManager();
-                getSupportActionBar().setTitle("Activos");
+                getSupportActionBar().setTitle(R.string.item_onOffer);
                 fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOffersFragment.newInstance(_userID)).commit();
+
+            }
+        }
+
+        if (requestCode == 2) {
+            if (resultCode == RESULT_OK) {
+                //Se ha alquilado un juego.
+                GameRenting gameRenting = (GameRenting) data.getSerializableExtra("renting");
+                long listingId = data.getLongExtra("listing_id", -1);
+
+
+                DBConnection.db(getApplicationContext()).addRenting(gameRenting, listingId);
+
+                FragmentManager fm = getFragmentManager();
+                getSupportActionBar().setTitle(R.string.item_actives);
+                fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveReceivedFragment.newInstance(_userID)).commit();
 
             }
         }

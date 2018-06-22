@@ -1,12 +1,13 @@
 package gamepad.pad;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Ynscription on 22/06/2018.
  */
 
-public class GameRenting {
+public class GameRenting implements Serializable{
 
     private long _rent_id;
     private long _game_id;
@@ -18,7 +19,7 @@ public class GameRenting {
     private Date _start_date;
     private Date _end_date;
 
-    public long getRendId () {return _rent_id;}
+    public long getRentId() {return _rent_id;}
     public long getGameId() {return _game_id;}
     public String getName() {return _game_name;}
     public String getDesc() {return _game_desc;}

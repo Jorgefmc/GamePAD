@@ -10,6 +10,7 @@ import java.io.Serializable;
 
 public class GameListing implements Serializable{
 
+    private long _id;
     private long _game_id;
     private String _game_name;
     private String _game_desc;
@@ -18,8 +19,10 @@ public class GameListing implements Serializable{
     private float _price_day;
 
     public long getId() {
-        return _game_id;
+        return _id;
     }
+
+    public long getGameId () {return _game_id;}
 
     public String getName() {
         return _game_name;
@@ -42,8 +45,9 @@ public class GameListing implements Serializable{
         return _price_day;
     }
 
-    public GameListing (long id, String gameName, String gameDesc, String url, long renter, float pricePerDay) {
-        _game_id = id;
+    public GameListing (long id, long gameId, String gameName, String gameDesc, String url, long renter, float pricePerDay) {
+        _id = id;
+        _game_id = gameId;
         _game_name = gameName;
         _game_desc = gameDesc;
         _game_url = url;

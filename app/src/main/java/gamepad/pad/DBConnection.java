@@ -6,9 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.text.format.DateUtils;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Ynscription on 19/06/2018.
@@ -44,7 +47,6 @@ public class DBConnection extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
         createAll(db);
-        addDefault(db);
     }
 
     @Override
@@ -58,8 +60,6 @@ public class DBConnection extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
         killAll(db);
         createAll(db);
-        //TODO default user must not make it to the release
-        addDefault(db);
     }
 
     private void killAll (SQLiteDatabase db) {
@@ -109,25 +109,7 @@ public class DBConnection extends SQLiteOpenHelper{
 
     }
 
-    private void addDefault (SQLiteDatabase db) {
-        Cursor cursor = db.query("Users", new String[]{"id"},
-                "id=?", new String[]{"" + DEFAULT_USER},
-                null, null, null);
 
-        ContentValues values = new ContentValues();
-        values.put("id", DEFAULT_USER);
-        values.put ("email", "user@test.com");
-        values.put ("username", "User");
-        values.put ("pw", "12345");
-
-        if (cursor.moveToFirst())
-            db.update("Users", values, "id=?", new String[]{"" + DEFAULT_USER});
-        else
-            db.insert("Users", null, values);
-
-        cursor.close();
-        //db.close();
-    }
 
     public long createUser (String email, String name, String pw) throws LoginException {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -235,7 +217,7 @@ public class DBConnection extends SQLiteOpenHelper{
         SQLiteDatabase db = this.getWritableDatabase();
 
         Cursor cursor = db.query("Games", new String[]{"id"},
-                "id=? ", new String[] {"" + gameListing.getId()},
+                "id=? ", new String[] {"" + gameListing.getGameId()},
                 null, null, null);
 
 
@@ -244,7 +226,7 @@ public class DBConnection extends SQLiteOpenHelper{
             cursor.close();
 
             ContentValues values = new ContentValues();
-            values.put("id", gameListing.getId());
+            values.put("id", gameListing.getGameId());
             values.put ("name", gameListing.getName());
             values.put ("description", gameListing.getDesc());
             values.put ("url", gameListing.getUrl());
@@ -256,14 +238,12 @@ public class DBConnection extends SQLiteOpenHelper{
 
         ContentValues values = new ContentValues();
         values.put ("user_id", gameListing.getRenter());
-        values.put ("game_id", gameListing.getId());
+        values.put ("game_id", gameListing.getGameId());
         values.put ("price_day", gameListing.getPrice());
 
         db.insert("Listings", null, values);
 
     }
-
-
 
     public GameListing[] getExclusiveGameListings(long userID) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -278,6 +258,7 @@ public class DBConnection extends SQLiteOpenHelper{
                 res = new GameListing[cursor.getCount()];
                 int pos = 0;
                 do {
+                    long listing_id = cursor.getLong(cursor.getColumnIndex("id"));
                     long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
                     long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
                     float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
@@ -285,10 +266,11 @@ public class DBConnection extends SQLiteOpenHelper{
                             "id=? ", new String[]{"" + game_id},
                             null, null, null);
                     if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+
                         String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
                         String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
                         String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
-                        res[pos] = new GameListing(game_id, gameName, gameDesc, gameURL, user_id, price_day);
+                        res[pos] = new GameListing(listing_id, game_id, gameName, gameDesc, gameURL, user_id, price_day);
                     }
                     gameCursor.close();
                     pos++;
@@ -314,6 +296,7 @@ public class DBConnection extends SQLiteOpenHelper{
             res = new GameListing[cursor.getCount()];
             int pos = 0;
             do {
+                long listing_id = cursor.getLong(cursor.getColumnIndex("id"));
                 long game_id = cursor.getLong(cursor.getColumnIndex("game_id"));
                 long user_id = cursor.getLong(cursor.getColumnIndex("user_id"));
                 float price_day = cursor.getFloat(cursor.getColumnIndex("price_day"));
@@ -324,7 +307,7 @@ public class DBConnection extends SQLiteOpenHelper{
                     String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
                     String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
                     String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
-                    res[pos] = new GameListing(game_id, gameName, gameDesc, gameURL, user_id, price_day);
+                    res[pos] = new GameListing(listing_id, game_id, gameName, gameDesc, gameURL, user_id, price_day);
                 }
                 gameCursor.close();
                 pos++;
@@ -335,8 +318,10 @@ public class DBConnection extends SQLiteOpenHelper{
         return res;
     }
 
-    public long addRenting (GameRenting game) {
+    public long addRenting (GameRenting game, long listing_id) {
         SQLiteDatabase db = getWritableDatabase();
+
+        db.delete("Listings", "id=?", new String[]{"" + listing_id});
 
         ContentValues values = new ContentValues();
         values.put ("giver_id", game.getGiver());
@@ -356,7 +341,7 @@ public class DBConnection extends SQLiteOpenHelper{
     public long finishRenting (long id) {
         SQLiteDatabase db = getWritableDatabase();
 
-        Cursor activeCursor = db.query("ActiveRents", new String[]{"id"},
+        Cursor activeCursor = db.query("ActiveRents", null,
                 "id=?", new String []{"" + id},
                 null, null, null);
 
@@ -368,6 +353,14 @@ public class DBConnection extends SQLiteOpenHelper{
             String startDate = activeCursor.getString(activeCursor.getColumnIndex("start_date"));
             float price = activeCursor.getFloat(activeCursor.getColumnIndex("price_day"));
 
+            Date date = null;
+            try {
+                date = _df.parse(startDate);
+            } catch (ParseException e) {e.printStackTrace();}
+
+            long diff = date.getTime() - System.currentTimeMillis();
+            long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
+            float totalAmount = days * price;
 
             int res = db.delete("ActiveRents", "id=?", new String[]{"" + id});
             if (res != 1) {
@@ -380,7 +373,7 @@ public class DBConnection extends SQLiteOpenHelper{
             values.put ("game_id", gameId);
             values.put("start_date", startDate);
             values.put("end_date", _df.format(new Date()));
-            values.put ("price_day", price);
+            values.put ("price_total", totalAmount);
 
             long newId = db.insert("CompletedRents", null, values);
             activeCursor.close();
@@ -401,13 +394,124 @@ public class DBConnection extends SQLiteOpenHelper{
                 "giver_id=?", new String []{"" + userID},
                 null, null, null);
 
+        GameRenting[] res = null;
+        if (cursor.moveToFirst()) {
+            res = new GameRenting[cursor.getCount()];
+            int pos = 0;
+            do {
+                long id = cursor.getLong(cursor.getColumnIndex("id"));
+                long gameId = cursor.getLong(cursor.getColumnIndex("game_id"));
+                long giverId = cursor.getLong(cursor.getColumnIndex("giver_id"));
+                long receiverId = cursor.getLong(cursor.getColumnIndex("receiver_id"));
+                Date startDate = null;
+                try {
+                    startDate = _df.parse(cursor.getString(cursor.getColumnIndex("start_date")));
+                } catch (ParseException e) {e.printStackTrace();}
+                float price = cursor.getFloat(cursor.getColumnIndex("price_day"));
 
+                Cursor gameCursor = db.query("Games", new String[]{"name", "description", "url"},
+                        "id=? ", new String[] {"" + gameId},
+                        null, null, null);
+                if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+                    String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
+                    String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
+                    String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
+                    res[pos] = new GameRenting(id, gameId, gameName, gameDesc, giverId, receiverId, price, startDate, null);
+                }
 
-        return null;
+                gameCursor.close();
+                pos++;
+            }while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return res;
     }
 
-    public GameListing[] getReceivedByUser(long userID) {
+    public GameRenting[] getReceivedByUser(long userID) {
+        SQLiteDatabase db = this.getWritableDatabase();
 
-        return null;
+        Cursor cursor = db.query("ActiveRents", null,
+                "receiver_id=?", new String []{"" + userID},
+                null, null, null);
+
+        GameRenting[] res = null;
+        if (cursor.moveToFirst()) {
+            res = new GameRenting[cursor.getCount()];
+            int pos = 0;
+            do {
+                long id = cursor.getLong(cursor.getColumnIndex("id"));
+                long gameId = cursor.getLong(cursor.getColumnIndex("game_id"));
+                long giverId = cursor.getLong(cursor.getColumnIndex("giver_id"));
+                long receiverId = cursor.getLong(cursor.getColumnIndex("receiver_id"));
+                Date startDate = null;
+                try {
+                    startDate = _df.parse(cursor.getString(cursor.getColumnIndex("start_date")));
+                } catch (ParseException e) {e.printStackTrace();}
+                float price = cursor.getFloat(cursor.getColumnIndex("price_day"));
+
+                Cursor gameCursor = db.query("Games", new String[]{"name", "description", "url"},
+                        "id=? ", new String[] {"" + gameId},
+                        null, null, null);
+                if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+                    String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
+                    String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
+                    String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
+                    res[pos] = new GameRenting(id, gameId, gameName, gameDesc, giverId, receiverId, price, startDate, null);
+                }
+                gameCursor.close();
+
+                pos++;
+            }while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return res;
+    }
+
+    public GameRenting[] getHistoryByUser(long userID) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        Cursor cursor = db.query("CompletedRents", null,
+                "giver_id=? OR receiver_id=?", new String []{"" + userID, "" + userID},
+                null, null, null);
+
+        GameRenting[] res = null;
+        if (cursor.moveToFirst()) {
+            res = new GameRenting[cursor.getCount()];
+            int pos = 0;
+            do {
+                long id = cursor.getLong(cursor.getColumnIndex("id"));
+                long gameId = cursor.getLong(cursor.getColumnIndex("game_id"));
+                long giverId = cursor.getLong(cursor.getColumnIndex("giver_id"));
+                long receiverId = cursor.getLong(cursor.getColumnIndex("receiver_id"));
+                Date startDate = null;
+                Date endDate = null;
+                try {
+                    startDate = _df.parse(cursor.getString(cursor.getColumnIndex("start_date")));
+                    endDate = _df.parse(cursor.getString(cursor.getColumnIndex("end_date")));
+                } catch (ParseException e) {e.printStackTrace();}
+                float price = cursor.getFloat(cursor.getColumnIndex("price_total"));
+
+                Cursor gameCursor = db.query("Games", new String[]{"name", "description", "url"},
+                        "id=? ", new String[] {"" + gameId},
+                        null, null, null);
+                if (gameCursor.moveToFirst() && gameCursor.getCount() == 1) {
+                    String gameName = gameCursor.getString(gameCursor.getColumnIndex("name"));
+                    String gameDesc = gameCursor.getString(gameCursor.getColumnIndex("description"));
+                    String gameURL = gameCursor.getString(gameCursor.getColumnIndex("url"));
+                    res[pos] = new GameRenting(id, gameId, gameName, gameDesc, giverId, receiverId, price, startDate, endDate);
+                }
+                gameCursor.close();
+
+                pos++;
+            }while (cursor.moveToNext());
+        }
+
+        cursor.close();
+
+        return res;
     }
 }

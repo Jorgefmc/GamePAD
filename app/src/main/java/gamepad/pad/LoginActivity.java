@@ -111,32 +111,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        //TODO: Remove this skip!!!!!!!!
-        FloatingActionButton skip = (FloatingActionButton) findViewById(R.id.skip);
-        skip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                long user_id = DBConnection.db(getApplicationContext()).DEFAULT_USER;
 
-                SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = loginToken.edit();
-                editor.putLong("login", user_id);
-                editor.commit();
-
-                Intent intent = new Intent(LoginActivity.this, MenuActivity.class);
-                intent.putExtra("id", user_id);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
-        });
-
-        FloatingActionButton killall = (FloatingActionButton) findViewById(R.id.killall);
-        killall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-               DBConnection.db(getApplicationContext()).resetDB();
-            }
-        });
     }
 
     private void populateAutoComplete() {

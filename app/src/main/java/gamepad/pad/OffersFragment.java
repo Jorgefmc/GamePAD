@@ -1,6 +1,8 @@
 package gamepad.pad;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -49,7 +51,6 @@ public class OffersFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_offers, container, false);
-
 
         _recyclerView = (RecyclerView) v.findViewById(R.id.offers_itemsList);
         _recyclerView.setHasFixedSize(true);
@@ -100,7 +101,7 @@ public class OffersFragment extends Fragment {
         Intent intent = new Intent(getActivity(), OfferInspectActivity.class);
         intent.putExtra("receiver", _userID);
         intent.putExtra("game", game);
-        startActivityForResult(intent, 1);
+        getActivity().startActivityForResult(intent, 2);
     }
 
     /**

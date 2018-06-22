@@ -9,9 +9,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 
 public class ActiveReceivedFragment extends Fragment {
@@ -55,10 +58,16 @@ public class ActiveReceivedFragment extends Fragment {
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new ReceivedListAdapter(v.getContext(), _userID);
+        _adapter = new ReceivedListAdapter(v.getContext(), _userID, this);
         _recyclerView.setAdapter(_adapter);
 
         return v;
+    }
+
+    @Override
+    public void onResume () {
+        super.onResume();
+        _adapter.update();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -85,6 +94,12 @@ public class ActiveReceivedFragment extends Fragment {
         mListener = null;
     }
 
+    public void onRentFinish(GameRenting gameRenting) {
+        DBConnection.db(getActivity().getApplicationContext()).finishRenting(gameRenting.getRentId());
+        _adapter.update();
+        getFragmentManager().beginTransaction().replace(R.id.menu_contentFrame, ActiveReceivedFragment.newInstance(_userID)).commit();
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -104,27 +119,32 @@ public class ActiveReceivedFragment extends Fragment {
 
 class ReceivedListAdapter extends  RecyclerView.Adapter<ReceivedListAdapter.ReceivedViewHolder> {
 
+    private ActiveReceivedFragment _parent;
     private Context _context;
-    private SimpleDateFormat _dateFormat;
-    private GameListing [] _itemList;
+    private GameRenting [] _itemList;
     private long _userID;
+    private DecimalFormat _df;
 
     public static  class ReceivedViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
         public TextView _body;
+        public Button _finishButton;
 
         public ReceivedViewHolder (View v) {
             super(v);
-            _head = (TextView)v.findViewById(R.id.list_item_Head);
-            _body = (TextView)v.findViewById(R.id.list_item_Body);
+            _head = (TextView)v.findViewById(R.id.rent_list_item_Head);
+            _body = (TextView)v.findViewById(R.id.rent_list_item_Body);
+            _finishButton = (Button) v.findViewById(R.id.rent_finish_rent);
         }
 
     }
 
-    public ReceivedListAdapter(Context context, long userID) {
+    public ReceivedListAdapter(Context context, long userID, ActiveReceivedFragment parent) {
         _userID = userID;
         _context = context;
-
+        _df = new DecimalFormat();
+        _df.setMaximumFractionDigits(2);
+        _parent = parent;
 
     }
 
@@ -136,18 +156,26 @@ class ReceivedListAdapter extends  RecyclerView.Adapter<ReceivedListAdapter.Rece
 
     @Override
     public ReceivedViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
+        View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.rent_list_item, parent, false);
 
         return new ReceivedViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(ReceivedListAdapter.ReceivedViewHolder holder, int position) {
+    public void onBindViewHolder(ReceivedListAdapter.ReceivedViewHolder holder, final int position) {
 
         holder._head.setText(_itemList[position].getName());
-        /*long diff = _dateList[position].getTime() - System.currentTimeMillis();
-        long daysLeft = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);*/
-        holder._body.setText(_itemList[position].getPrice() + "€ por día");
+        long diff = _itemList[position].getStartDate().getTime() - System.currentTimeMillis();
+        long days = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
+        float totalAmount = days * _itemList[position].getPrice();
+        holder._body.setText(_df.format(totalAmount) + "€");
+        holder._finishButton.setText("Devolver");
+        holder._finishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _parent.onRentFinish(_itemList[position]);
+            }
+        });
     }
 
     @Override

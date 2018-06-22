@@ -187,7 +187,7 @@ public class RentActivity extends AppCompatActivity {
         //TODO get location and if the location is valid, add it to the game
 
 
-        GameListing gameListing = new GameListing(selectedGameID, selectedGameName, selectedGameDesc, selectedGameURL, user_id, price);
+        GameListing gameListing = new GameListing(-1, selectedGameID, selectedGameName, selectedGameDesc, selectedGameURL, user_id, price);
 
 
         Intent returnIntent = new Intent();
