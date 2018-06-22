@@ -2,6 +2,7 @@ package gamepad.pad;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.net.Uri;
@@ -57,8 +58,10 @@ public class OffersFragment extends Fragment {
         _recyclerView .setLayoutManager(_layoutManager);
 
         _userID = getArguments().getLong("id");
-        _adapter = new OffersItemListAdapter(v.getContext(), _userID);
+        _adapter = new OffersItemListAdapter(v.getContext(), _userID, this);
         _recyclerView.setAdapter(_adapter);
+
+
 
         return v;
     }
@@ -93,6 +96,13 @@ public class OffersFragment extends Fragment {
         mListener = null;
     }
 
+    public void onClickedItem (GameListing game) {
+        Intent intent = new Intent(getActivity(), OfferInspectActivity.class);
+        intent.putExtra("receiver", _userID);
+        intent.putExtra("game", game);
+        startActivityForResult(intent, 1);
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -114,6 +124,7 @@ class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.
     private Context _context;
     private long _userID;
     private GameListing [] _gameList;
+    private OffersFragment _parent;
 
 
     public static  class OffersViewHolder extends RecyclerView.ViewHolder {
@@ -128,9 +139,10 @@ class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.
 
     }
 
-    public OffersItemListAdapter(Context context, long userID) {
+    public OffersItemListAdapter(Context context, long userID, OffersFragment parent) {
         _context = context;
         _userID = userID;
+        _parent = parent;
     }
 
     public void update() {
@@ -146,12 +158,21 @@ class OffersItemListAdapter extends  RecyclerView.Adapter<OffersItemListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(OffersViewHolder holder, int position) {
+    public void onBindViewHolder(OffersViewHolder holder, final int position) {
         if (getItemCount() > 0) {
             holder._head.setText(_gameList[position].getName());
             holder._body.setText(_gameList[position].getPrice() + "€ por día");
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    _parent.onClickedItem(_gameList[position]);
+                }
+            });
         }
     }
+
+
+
     public int getItemCount() {
         if (_gameList == null)
             return 0;

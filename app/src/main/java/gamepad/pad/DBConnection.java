@@ -17,6 +17,7 @@ public class DBConnection extends SQLiteOpenHelper{
     private static final String _DATABASE_NAME = "pad_db";
     private static DBConnection instance= null;
     public static final long DEFAULT_USER = 0;
+    private SQLiteDatabase _db;
 
     //Thread safe singleton
     public static DBConnection db (Context context) {
@@ -122,7 +123,7 @@ public class DBConnection extends SQLiteOpenHelper{
             db.insert("Users", null, values);
 
         cursor.close();
-        db.close();
+        //db.close();
     }
 
     public long createUser (String email, String name, String pw) throws LoginException {
@@ -143,7 +144,7 @@ public class DBConnection extends SQLiteOpenHelper{
                 qname = name.equals(cursor.getString(cursor.getColumnIndex("username")));
             }while(cursor.moveToNext() && !qemail && !qname);
             cursor.close();
-            db.close();
+            //db.close();
             if (qemail) {
                 LoginException e = new LoginException("Email is already in use", LoginException.USED_EMAIL);
                 throw e;
@@ -163,7 +164,7 @@ public class DBConnection extends SQLiteOpenHelper{
 
         long id = db.insert("Users", null, values);
 
-        db.close();
+        //db.close();
 
         return id;
     }
@@ -187,7 +188,7 @@ public class DBConnection extends SQLiteOpenHelper{
         }
 
         cursor.close();
-        db.close();
+        //db.close();
         return res;
     }
 
@@ -205,7 +206,7 @@ public class DBConnection extends SQLiteOpenHelper{
         }
 
         cursor.close();
-        db.close();
+        //db.close();
         return res;
     }
 
@@ -223,7 +224,7 @@ public class DBConnection extends SQLiteOpenHelper{
         }
 
         cursor.close();
-        db.close();
+        //db.close();
         return res;
     }
 

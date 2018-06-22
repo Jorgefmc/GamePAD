@@ -46,6 +46,7 @@
     <string name="tab_text_1">Recibidos</string>
     <string name="tab_text_2">Ofertas</string>
     <string name="tab_text_3">Prestados</string>
+    <string name="title_activity_offer_inspect">OfferInspectActivity</string>
 
 
 </resources>
