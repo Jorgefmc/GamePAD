@@ -7,28 +7,28 @@
         <item
             android:id="@+id/menu_offersItem"
             android:title="@string/item_offers" />
-        <item
-            android:id="@+id/menu_activeItem"
-            android:title="@string/item_actives" />
+
         <item
             android:id="@+id/menu_rentItem"
             android:title="@string/item_rent" />
+
     </group>
 
     <item android:title="@string/item_separator">
         <menu>
             <item
-                android:id="@+id/menu_accountItem"
-                android:title="@string/item_account" />
+                android:id="@+id/menu_activeItem"
+                android:title="@string/item_actives" />
             <item
-                android:id="@+id/menu_historyItem"
-                android:title="@string/item_history" />
+                android:id="@+id/menu_onOfferItem"
+                android:title="@string/item_onOffer" />
             <item
-                android:id="@+id/menu_settingsItem"
-                android:icon="@drawable/ic_menu_manage"
-                android:title="@string/item_settings" />
+                android:id="@+id/menu_onRentItem"
+                android:title="@string/item_onRent" />
+
             <item
                 android:id="@+id/menu_exitItem"
+                android:icon="@drawable/ic_logout"
                 android:title="@string/item_exit" />
         </menu>
     </item>

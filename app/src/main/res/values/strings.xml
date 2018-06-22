@@ -47,6 +47,9 @@
     <string name="tab_text_2">Ofertas</string>
     <string name="tab_text_3">Prestados</string>
     <string name="title_activity_offer_inspect">OfferInspectActivity</string>
+    <string name="item_onOffer">En oferta</string>
+    <string name="item_onRent">Alquilando</string>
+    <string name="title_activity_active_on_rent_fragment">ActiveOnRentFragment</string>
 
 
 </resources>

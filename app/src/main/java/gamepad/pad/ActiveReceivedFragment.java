@@ -14,29 +14,22 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ActiveOffersFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ActiveOffersFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ActiveOffersFragment extends Fragment {
+public class ActiveReceivedFragment extends Fragment {
 
     private RecyclerView _recyclerView;
     private RecyclerView.LayoutManager _layoutManager;
-    private OffersListAdapter _adapter;
+    private ReceivedListAdapter _adapter;
     private long _userID;
 
-    private ActiveOffersFragment.OnFragmentInteractionListener mListener;
+    private ActiveReceivedFragment.OnFragmentInteractionListener mListener;
 
-    public ActiveOffersFragment() {
+    public ActiveReceivedFragment() {
+        // Required empty public constructor
     }
 
 
-    public static ActiveOffersFragment newInstance(long userId) {
-        ActiveOffersFragment fragment = new ActiveOffersFragment();
+    public static ActiveReceivedFragment newInstance(long userId) {
+        ActiveReceivedFragment fragment = new ActiveReceivedFragment();
         Bundle args = new Bundle();
         args.putLong("user", userId);
         fragment.setArguments(args);
@@ -51,29 +44,21 @@ public class ActiveOffersFragment extends Fragment {
         }
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_active_offers, container, false);
+        View v = inflater.inflate(R.layout.fragment_active_received, container, false);
 
-        _recyclerView = (RecyclerView) v.findViewById(R.id.actives_itemList);
+        _recyclerView = (RecyclerView) v.findViewById(R.id.active_received_list);
         _recyclerView.setHasFixedSize(true);
 
         _layoutManager = new LinearLayoutManager(v.getContext());
         _recyclerView .setLayoutManager(_layoutManager);
 
-        _adapter = new OffersListAdapter(v.getContext(), _userID);
+        _adapter = new ReceivedListAdapter(v.getContext(), _userID);
         _recyclerView.setAdapter(_adapter);
 
         return v;
-    }
-
-    @Override
-    public void onResume () {
-        super.onResume();
-        _adapter.update();
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -86,8 +71,8 @@ public class ActiveOffersFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof ActiveOffersFragment.OnFragmentInteractionListener) {
-            mListener = (ActiveOffersFragment.OnFragmentInteractionListener) context;
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -114,22 +99,21 @@ public class ActiveOffersFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
 }
 
 
-class OffersListAdapter extends  RecyclerView.Adapter<OffersListAdapter.ActivesViewHolder> {
+class ReceivedListAdapter extends  RecyclerView.Adapter<ReceivedListAdapter.ReceivedViewHolder> {
 
     private Context _context;
     private SimpleDateFormat _dateFormat;
     private GameListing [] _itemList;
     private long _userID;
 
-    public static  class ActivesViewHolder extends RecyclerView.ViewHolder {
+    public static  class ReceivedViewHolder extends RecyclerView.ViewHolder {
         public TextView _head;
         public TextView _body;
 
-        public ActivesViewHolder (View v) {
+        public ReceivedViewHolder (View v) {
             super(v);
             _head = (TextView)v.findViewById(R.id.list_item_Head);
             _body = (TextView)v.findViewById(R.id.list_item_Body);
@@ -137,7 +121,7 @@ class OffersListAdapter extends  RecyclerView.Adapter<OffersListAdapter.ActivesV
 
     }
 
-    public OffersListAdapter(Context context, long userID) {
+    public ReceivedListAdapter(Context context, long userID) {
         _userID = userID;
         _context = context;
 
@@ -146,19 +130,19 @@ class OffersListAdapter extends  RecyclerView.Adapter<OffersListAdapter.ActivesV
 
     public  void update () {
 
-        _itemList = DBConnection.db(_context).getGameListingsFromUser(_userID);
+        _itemList = DBConnection.db(_context).getReceivedByUser(_userID);
 
     }
 
     @Override
-    public OffersListAdapter.ActivesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ReceivedViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = (View) LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false);
 
-        return new ActivesViewHolder(v);
+        return new ReceivedViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(OffersListAdapter.ActivesViewHolder holder, int position) {
+    public void onBindViewHolder(ReceivedListAdapter.ReceivedViewHolder holder, int position) {
 
         holder._head.setText(_itemList[position].getName());
         /*long diff = _dateList[position].getTime() - System.currentTimeMillis();
@@ -174,4 +158,3 @@ class OffersListAdapter extends  RecyclerView.Adapter<OffersListAdapter.ActivesV
         return _itemList.length;
     }
 }
-

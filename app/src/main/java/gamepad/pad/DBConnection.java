@@ -331,4 +331,14 @@ public class DBConnection extends SQLiteOpenHelper{
 
         return res;
     }
+
+    public GameListing[] getOnRentByUser(long userID) {
+
+        return null;
+    }
+
+    public GameListing[] getReceivedByUser(long userID) {
+
+        return null;
+    }
 }

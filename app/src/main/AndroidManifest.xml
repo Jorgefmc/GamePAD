@@ -67,10 +67,6 @@
             android:value="AIzaSyD5w17x9hUJOajfMmVChduwaS7VupyCAN4" />
 
         <activity
-            android:name=".TabTestActivity"
-            android:label="@string/title_activity_tab_test"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".OfferInspectActivity"
             android:label="@string/title_activity_offer_inspect"
             android:parentActivityName=".MenuActivity"

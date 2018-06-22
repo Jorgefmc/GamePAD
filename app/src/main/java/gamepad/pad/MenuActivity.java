@@ -19,7 +19,8 @@ import android.widget.TextView;
 
 public class MenuActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        OffersFragment.OnFragmentInteractionListener, ActiveOffersFragment.OnFragmentInteractionListener{
+        OffersFragment.OnFragmentInteractionListener, ActiveOffersFragment.OnFragmentInteractionListener,
+        ActiveReceivedFragment.OnFragmentInteractionListener, ActiveOnRentFragment.OnFragmentInteractionListener{
 
     private long _userID;
     private LocationManager _locationManager;
@@ -100,20 +101,25 @@ public class MenuActivity extends AppCompatActivity
         if (id == R.id.menu_offersItem) {
             getSupportActionBar().setTitle("Ofertas");
             fm.beginTransaction().replace(R.id.menu_contentFrame, OffersFragment.newInstance(_userID)).commit();
-        } else if (id == R.id.menu_activeItem) {
-            getSupportActionBar().setTitle("Activos");
-            fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOffersFragment.newInstance(_userID)).commit();
-        } else if (id == R.id.menu_rentItem) {
+        }
+        else if (id == R.id.menu_rentItem) {
             Intent intent = new Intent(MenuActivity.this, RentActivity.class);
             intent.putExtra("id", _userID);
             startActivityForResult(intent, 1);
-        } else if (id == R.id.menu_accountItem) {
-
-        } else if (id == R.id.menu_historyItem) {
-
-        } else if (id == R.id.menu_settingsItem) {
-
-        } else if (id == R.id.menu_exitItem) {
+        }
+        else if (id == R.id.menu_activeItem) {
+            getSupportActionBar().setTitle("Activos");
+            fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveReceivedFragment.newInstance(_userID)).commit();
+        }
+        else if (id == R.id.menu_onOfferItem) {
+            getSupportActionBar().setTitle("En oferta");
+            fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOffersFragment.newInstance(_userID)).commit();
+        }
+        else if (id == R.id.menu_onRentItem) {
+            getSupportActionBar().setTitle("Alquilados");
+            fm.beginTransaction().replace(R.id.menu_contentFrame, ActiveOnRentFragment.newInstance(_userID)).commit();
+        }
+        else if (id == R.id.menu_exitItem) {
             SharedPreferences loginToken = getSharedPreferences("loginToken", Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = loginToken.edit();
             editor.remove("login");
